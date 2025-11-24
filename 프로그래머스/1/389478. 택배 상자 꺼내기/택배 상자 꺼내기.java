@@ -6,47 +6,71 @@ import java.io.*;
 
 class Solution {
     public int solution(int n, int w, int num) {
-        int answer = 0;
-        int height = n / w;
-        int[][] box = new int[height + 1][w];
-        int boxNum = 1;
-        boolean nFlag = false;
-        for (int i = height; i >= 0; i--) {
-            if (i % 2 == 1) {
+        int answer = 1;
+        boolean flag = true;
+        int m = (n % w == 0) ? (n / w) : (n / w) + 1;
+        int[][] arr = new int[m][w];
+        int dx = 0;
+        int dy = 0;
+
+        int boxNum = 0;
+
+        boolean isRight = true;
+
+        // 배열 구성
+        for (int i = m - 1; i >= 0; i--) {
+            if (isRight) {
                 for (int j = 0; j < w; j++) {
-                    box[i][j] = boxNum;
                     boxNum++;
+                    if (boxNum > n) {
+                        break;
+                    }
+                    arr[i][j] = boxNum;
                 }
             } else {
                 for (int j = w - 1; j >= 0; j--) {
-                    box[i][j] = boxNum;
                     boxNum++;
+                    if (boxNum > n) {
+                        break;
+                    }
+                    arr[i][j] = boxNum;
                 }
             }
+            isRight = !isRight;
         }
-        
-        int wantBoxHeight = 0;
-        
-        for (int i = 0; i < height + 1; i++) {
+
+        // 디버깅용 출력
+        /*for (int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {
-                System.out.print(box[i][j]);
-                if (box[i][j] == num) {
-                    int indexY = j;
-                    int indexX = i;
-                    while (indexX >= 0) {
-                        if (box[indexX][indexY] <= n){
-                            answer++;
-                        }
-                        indexX--;
-                    }
-                }
+                System.out.print(arr[i][j]);
             }
             System.out.println();
+        }*/
+
+        // 찾고자 하는 택배 숫자 찾기
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < w; j++) {
+                if (arr[i][j] == num) {
+                    dx = i;
+                    dy = j;
+                    flag = false;
+                    break;
+                }
+            }
+            if (!flag) {
+                break;
+            }
         }
-        
-        System.out.println();
+
+      while (true) {
+            dx--;
+            if (dx < 0 || arr[dx][dy] == 0) {
+                break;
+            }
+            answer++;
+        }
+
         System.out.println(answer);
-        
 
         return answer;
     }
