@@ -2,77 +2,66 @@ import java.util.HashMap;
 import java.util.Map;
 
 class Solution {
+    // 이번달에 선물을 주고 받은 현황 기록
+    // 선물 지수 기록
+    // 위의 자료를 통해 계산 후 다음달에 가장 선물 return
     public int solution(String[] friends, String[] gifts) {
-        Map<String, Integer> friendIndex = new HashMap<>();
 
-        int friendLength = friends.length;
+        int answer = -1;
+        int n = friends.length;
+        int[][] giftRecord = new int[n][n];
+        int[] score = new int[n];
 
+        Map<String, Integer> index = new HashMap<>();
         for (int i = 0; i < friends.length; i++) {
-            friendIndex.put(friends[i], i);
-        }  // 맵에 friends의 (이름, 인덱스) 형식으로 저장해놓음
+            index.put(friends[i], i);
+        }
 
-        int[][] giftsChart = new int[friendLength][friendLength];
-
+        // 선물 주고 받은 기록, 선물 지수 계산하여 배열로 만듬
         for (int i = 0; i < gifts.length; i++) {
-            String[] names = gifts[i].split(" ");
-            String giver = names[0];
-            String receiver = names[1];
-            giftsChart[friendIndex.get(giver)][friendIndex.get(receiver)] += 1;
+            String[] giftsSplit = gifts[i].split(" ");
+            int giverIndex =  index.get(giftsSplit[0]);
+            int takerIndex =  index.get(giftsSplit[1]);
+
+            score[giverIndex] += 1;
+            score[takerIndex] -= 1;
+            giftRecord[giverIndex][takerIndex] += 1;
         }
 
-        
-        int[] giftGivenCnt = new int[friendLength];
-        int[] giftReceivedCnt = new int[friendLength];
-        int[] giftScore = new int[friendLength];
-
-        for (int i = 0; i < friendLength; i++) {
-            for (int j = 0; j < friendLength; j++) {
-                giftGivenCnt[i] += giftsChart[i][j];
+        /*
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                System.out.print(giftRecord[i][j] + " ");
             }
+            System.out.println();
         }
+        */
 
-        for (int i = 0; i < friendLength; i++) {
-            for (int j = 0; j < friendLength; j++) {
-                giftReceivedCnt[i] += giftsChart[j][i];
-            }
+       /*
+       for (int i = 0; i < n; i++) {
+            System.out.print(score[i] + " ");
         }
-        
+       */
 
-        for (int i = 0; i < friendLength; i++) {
-            giftScore[i] = giftGivenCnt[i] - giftReceivedCnt[i];
-        }
+        // 선물 받은 개수 계산
+        for (int i = 0; i < n; i++ ) {
+            int cnt = 0;
+            for (int j = 0; j < n; j++) {
+                int giveCnt = giftRecord[i][j];
+                int takeCnt = giftRecord[j][i];
 
-        // 이제 비교하여 선물의 개수를 저장
-
-        int[] nextMonthGift = new int[friendLength];
-
-        for (int i = 0; i < friendLength; i++) {
-            for (int j = 0; j < friendLength; j++) {
-                if (i == j) {
-                    continue;
-                }
-
-                if (giftsChart[i][j] > giftsChart[j][i]) {
-                    nextMonthGift[i] += 1;
-                } else if (giftsChart[i][j] < giftsChart[j][i]) {
-                    nextMonthGift[j] += 1;
-                } else if (giftsChart[i][j] == giftsChart[j][i]) {
-                    // 선물 지수를 비교해줘야 함!!  선물 지수가 높은 사람이 선물을 받음 같다면 둘다 받지 않음
-                    if (giftScore[j] < giftScore[i]) {
-                        nextMonthGift[i] += 1;
-                    } else if (giftScore[j] > giftScore[i]) {
-                        nextMonthGift[j] += 1;
+                if (giveCnt > takeCnt) {
+                    cnt++;
+                } else if (giveCnt == takeCnt) {
+                    if (score[i] > score[j]) {
+                        cnt++;
                     }
                 }
             }
+            answer = Math.max(answer, cnt);
         }
 
-        int answer = -1;
-
-        for (int i = 0; i < friendLength; i++) {
-            answer = Math.max(answer, nextMonthGift[i] / 2);
-        }
-
+        System.out.println(answer);
 
         return answer;
     }
